@@ -16,7 +16,7 @@ async function connectDB(){
 
 connectDB().catch(console.error);
 
-// Ruta GET: obtener data
+// Ruta GET: todos los usuarios
 app.get("/users", async (req, res) => {
     try {
         const users = await db.collection("users").find().toArray();
@@ -26,7 +26,9 @@ app.get("/users", async (req, res) => {
     }
 });
 
-// Ruta GET con filtros por query string
+// Ruta GET con filtros por query
+// http://localhost:3000/users/search?gender=Female or Male
+// http://localhost:3000/users/search?gender=Male&married status=true or false
 app.get('/users/search', async (req, res) => {
     try {
         const query = {};
@@ -39,6 +41,52 @@ app.get('/users/search', async (req, res) => {
         res.json(filteredUsers);
     } catch (err) {
         res.status(500).json({ error: 'Error al buscar usuarios' });
+    }
+});
+
+// Ruta PUT que modifica o crea un documento por el email
+app.put('/users/update', async (req, res) => {
+    try {
+        const { email, updates } = req.body;
+
+        if (!email || !updates) {
+            return res.status(400).json({ error: 'Faltan campos: email y updates' });
+        }
+
+        const result = await db.collection('users').updateOne(
+            { email },
+            { $set: updates },
+            { upsert: true }
+        );
+
+        if (result.matchedCount > 0) {
+            res.status(200).json({ message: 'Usuario actualizado' });
+        } else {
+            res.status(201).json({ message: 'Usuario creado' });
+        }
+    } catch (err) {
+        res.status(500).json({ error: 'Error en actualización o creación' });
+    }
+});
+
+// Ruta DELETE que elimina un documento por email
+app.delete('/users/delete', async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({ error: 'Falta el campo email' });
+        }
+
+        const result = await db.collection('users').deleteOne({ email });
+
+        if (result.deletedCount === 0) {
+            return res.status(204).send();
+        }
+
+        res.status(200).json({ message: 'Usuario eliminado' });
+    } catch (err) {
+        res.status(500).json({ error: 'Error al eliminar el usuario' });
     }
 });
 
