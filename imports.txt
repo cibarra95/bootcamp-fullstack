@@ -1,0 +1,12 @@
+docker cp users.json mongo-db:/users.json
+
+docker exec mongo-db mongoimport \
+  --username admin \
+  --password 123456 \
+  --authenticationDatabase admin \
+  --db bootcampdb \
+  --collection users \
+  --file /users.json \
+  --jsonArray
+
+docker exec -it mongo-db mongosh -u admin -p 123456 --authenticationDatabase admin
