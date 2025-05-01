@@ -10,3 +10,9 @@ docker exec mongo-db mongoimport \
   --jsonArray
 
 docker exec -it mongo-db mongosh -u admin -p 123456 --authenticationDatabase admin
+
+docker run -d --name node-api \
+  -p 3000:3000 \
+  --env-file .env \
+  --network host \
+  node-api
