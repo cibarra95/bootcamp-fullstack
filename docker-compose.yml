@@ -11,3 +11,13 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: 123456
+
+  node-api:
+    build: ./node-api
+    container_name: node-api
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./node-api/.env
+    depends_on:
+      - mongo
